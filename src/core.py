@@ -2,8 +2,12 @@ from telegram.ext import CommandHandler, Filters, MessageHandler, Updater, Conve
 from telegram import ReplyKeyboardMarkup, ReplyKeyboardRemove
 from src.conf.settings import BASE_API_URL, TELEGRAM_TOKEN
 import logging
+import os
+
+PORT = int(os.environ.get('PORT', 5000))
 
 logger = logging.getLogger(__name__)
+TOKEN = TELEGRAM_TOKEN
 GENDER, PHOTO, LOCATION, BIO = range(4)
 
 
@@ -141,7 +145,12 @@ def main():
     dispatcher.add_handler(MessageHandler(Filters.command, unknown))
 
     # Start the Bot
-    updater.start_polling()
+    #updater.start_polling()
+
+    updater.start_webhook(listen="0.0.0.0",
+                          port=int(PORT),
+                          url_path=TOKEN)
+    updater.bot.setWebhook('https://yourherokuappname.herokuapp.com/' + TOKEN)
 
     # Block until the user presses Ctrl-C or the process receives SIGINT,
     # SIGTERM or SIGABRT. This should be used most of the time, since

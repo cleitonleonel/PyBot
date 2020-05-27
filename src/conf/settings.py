@@ -1,0 +1,2 @@
+TELEGRAM_TOKEN = "1153313361:AAG6gm_gkDwUYnJPYKn9S2CaCV81bUogwPQ"
+BASE_API_URL = "https://http.cat/"

@@ -1,6 +1,6 @@
 from telegram.ext import CommandHandler, Filters, MessageHandler, Updater, ConversationHandler
 from telegram import ReplyKeyboardMarkup, ReplyKeyboardRemove
-from src.conf.settings import BASE_API_URL, TELEGRAM_TOKEN
+from conf.settings import BASE_API_URL, TELEGRAM_TOKEN
 import logging
 import os
 

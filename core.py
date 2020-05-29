@@ -42,8 +42,8 @@ def search(update, context):
     if isinstance(parameter, list):
         parameter = ' '.join([str(elem) for elem in parameter])
     logger.info("Search of %s: %s", user.first_name, parameter)
-    rede = ChannelsNetwork()
-    films = rede.search(parameter)
+    rede = ChannelsNetwork(debug=True)
+    films = rede.search(parameter, description=False)
     logger.info("Films of %s: %s", user.first_name, films)
     list_filmes = []
     for index, film in enumerate(films):

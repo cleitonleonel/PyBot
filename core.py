@@ -42,7 +42,7 @@ def search(update, context):
     if isinstance(parameter, list):
         parameter = ' '.join([str(elem) for elem in parameter])
     logger.info("Search of %s: %s", user.first_name, parameter)
-    rede = ChannelsNetwork(debug=True)
+    rede = ChannelsNetwork(debug=True).set_proxies()
     films = rede.search(parameter, description=False)
     logger.info("Films of %s: %s", user.first_name, films)
     list_filmes = []
@@ -63,7 +63,7 @@ def search(update, context):
 
 
 def select_film(update, context):
-    rede = ChannelsNetwork()
+    rede = ChannelsNetwork(debug=True).set_proxies()
     user = update.message.from_user
     selected = update.message.text.replace('/', '')
     if selected.isalpha():

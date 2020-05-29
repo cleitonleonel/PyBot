@@ -1,6 +1,9 @@
 from telegram.ext import CommandHandler, Filters, MessageHandler, Updater, ConversationHandler
 from telegram import ReplyKeyboardMarkup, ReplyKeyboardRemove
 from conf.settings import BASE_API_URL, TELEGRAM_TOKEN
+from redecanais.redecanais import ChannelsNetwork
+
+
 import logging
 import os
 
@@ -9,6 +12,7 @@ PORT = int(os.environ.get('PORT', 5000))
 logger = logging.getLogger(__name__)
 TOKEN = TELEGRAM_TOKEN
 GENDER, PHOTO, LOCATION, BIO = range(4)
+SELECT = range(1)
 
 
 def start(update, context):
@@ -27,6 +31,67 @@ def home(update, context):
         reply_markup=ReplyKeyboardMarkup(reply_keyboard, one_time_keyboard=True))
 
     return GENDER
+
+
+def search(update, context):
+    global films
+    parameter = context.args
+    user = update.message.from_user
+    rede = ChannelsNetwork()
+    films = rede.search(parameter)
+    list_filmes = []
+    for index, film in enumerate(films):
+        list_filmes.append(str(index) + ' == ' + film['title'])
+    if len(list_filmes) == 0:
+        response_message = f'Desculpe {user.first_name}, não encontrei nenhum filme.'
+        context.bot.send_message(chat_id=update.message.chat_id, text=response_message)
+        return ConversationHandler.END
+    update.message.reply_text(
+        f'Oi {user.first_name}! Encontrei esses filmes: \n\n'
+        + '\n'.join(list_filmes) + '\n\n'
+        'Escolha um filme enviando o número correspondente. \n\n'
+        'Envie /cancel ou /exit para parar de falar comigo.')
+
+    return SELECT
+
+
+def select_film(update, context):
+    rede = ChannelsNetwork()
+    user = update.message.from_user
+    selected = update.message.text.replace('/', '')
+    if selected.isalpha():
+        response_message = 'Ok! Quando quiser um bom filme me chame.'
+        context.bot.send_message(chat_id=update.message.chat_id, text=response_message)
+        return ConversationHandler.END
+    else:
+        selected = int(selected)
+    try:
+        print(films[selected]['url'])
+    except:
+        return select_film
+    filme = films[selected]['url']
+    title = films[selected]['title']
+    img = films[selected]['img']
+    description = films[selected]['description']
+    player_url = rede.get_player(filme)
+    try:
+        video_url = rede.get_stream(url={'uri': player_url['embed']}, referer='https://dietafitness.fun/')
+    except:
+        response_message = 'Desculpe! Não encontrei links para esse filme.'
+        context.bot.send_message(chat_id=update.message.chat_id, text=response_message)
+        return ConversationHandler.END
+    else:
+        response_message = video_url.split('?')[0]
+        logger.info(response_message)
+        context.bot.send_message(chat_id=update.message.chat_id, text=response_message)
+
+
+def skip_select(update, context):
+    user = update.message.from_user
+    logger.info("Bio of %s: %s", user.first_name, update.message.text)
+    update.message.reply_text('Ok! Quando quiser um bom filme me chame.')
+
+    return ConversationHandler.END
 
 
 def http_cats(update, context):
@@ -107,6 +172,15 @@ def cancel(update, context):
     return ConversationHandler.END
 
 
+def exit(update, context):
+    user = update.message.from_user
+    logger.info("User %s canceled the conversation.", user.first_name)
+    update.message.reply_text('Tchau! Quando quiser um bom filme me chame.',
+                              reply_markup=ReplyKeyboardRemove())
+
+    return ConversationHandler.END
+
+
 def error(update, context):
     """Log Errors caused by Updates."""
     logger.warning('Update "%s" caused error "%s"', update, context.error)
@@ -140,17 +214,29 @@ def main():
         fallbacks=[CommandHandler('cancel', cancel)]
     )
 
+    conv_search = ConversationHandler(
+        entry_points=[CommandHandler('search', search)],
+
+        states={
+            SELECT: [MessageHandler(Filters.text, select_film),
+                     CommandHandler('skip', skip_select)],
+        },
+
+        fallbacks=[CommandHandler('exit', exit)]
+    )
+
     dispatcher.add_handler(conv_handler)
+    dispatcher.add_handler(conv_search)
 
     dispatcher.add_handler(MessageHandler(Filters.command, unknown))
 
     # Start the Bot
-    #updater.start_polling()
+    updater.start_polling()
 
-    updater.start_webhook(listen="0.0.0.0",
-                          port=int(PORT),
-                          url_path=TOKEN)
-    updater.bot.setWebhook('https://robot-dev.herokuapp.com/' + TOKEN)
+    #updater.start_webhook(listen="0.0.0.0",
+                          #port=int(PORT),
+                          #url_path=TOKEN)
+    #updater.bot.setWebhook('https://robot-dev.herokuapp.com/' + TOKEN)
 
     # Block until the user presses Ctrl-C or the process receives SIGINT,
     # SIGTERM or SIGABRT. This should be used most of the time, since

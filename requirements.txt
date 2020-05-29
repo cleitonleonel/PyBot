@@ -1,3 +1,4 @@
+beautifulsoup4==4.9.1
 certifi==2018.8.13
 cffi==1.14.0
 chardet==3.0.4
@@ -8,8 +9,9 @@ idna==2.7
 pycparser==2.20
 python-dotenv==0.9.1
 python-telegram-bot==12.7
-requests==2.19.1
+redecanais==0.16
+requests==2.23.0
 six==1.15.0
+soupsieve==2.0.1
 tornado==6.0.4
 urllib3==1.24.2
-

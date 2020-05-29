@@ -37,12 +37,15 @@ def search(update, context):
     global films
     parameter = context.args
     user = update.message.from_user
+    logger.info("Search of %s: %s", user.first_name, update.message.text)
     rede = ChannelsNetwork()
     films = rede.search(parameter)
+    logger.info("Films of %s: %s", user.first_name, films)
     list_filmes = []
     for index, film in enumerate(films):
         list_filmes.append(str(index) + ' == ' + film['title'])
     if len(list_filmes) == 0:
+        logger.info("Films_list len of %s: %s", user.first_name, len(list_filmes))
         response_message = f'Desculpe {user.first_name}, não encontrei nenhum filme.'
         context.bot.send_message(chat_id=update.message.chat_id, text=response_message)
         return ConversationHandler.END
@@ -231,12 +234,12 @@ def main():
     dispatcher.add_handler(MessageHandler(Filters.command, unknown))
 
     # Start the Bot
-    updater.start_polling()
+    #updater.start_polling()
 
-    #updater.start_webhook(listen="0.0.0.0",
-                          #port=int(PORT),
-                          #url_path=TOKEN)
-    #updater.bot.setWebhook('https://robot-dev.herokuapp.com/' + TOKEN)
+    updater.start_webhook(listen="0.0.0.0",
+                          port=int(PORT),
+                          url_path=TOKEN)
+    updater.bot.setWebhook('https://robot-dev.herokuapp.com/' + TOKEN)
 
     # Block until the user presses Ctrl-C or the process receives SIGINT,
     # SIGTERM or SIGABRT. This should be used most of the time, since

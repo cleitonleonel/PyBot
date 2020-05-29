@@ -38,8 +38,10 @@ def search(update, context):
     parameter = context.args
     user = update.message.from_user
     logger.info("Search of %s: %s", user.first_name, update.message.text)
+    logger.info("Search of %s: %s", user.first_name, parameter)
+    logger.info("Search of %s: %s", user.first_name, str(parameter))
     rede = ChannelsNetwork()
-    films = rede.search(parameter)
+    films = rede.search(str(parameter))
     logger.info("Films of %s: %s", user.first_name, films)
     list_filmes = []
     for index, film in enumerate(films):

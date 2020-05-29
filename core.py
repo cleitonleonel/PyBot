@@ -39,9 +39,11 @@ def search(update, context):
     user = update.message.from_user
     logger.info("Search of %s: %s", user.first_name, update.message.text)
     logger.info("Search of %s: %s", user.first_name, parameter)
-    logger.info("Search of %s: %s", user.first_name, str(parameter))
+    if isinstance(parameter, list):
+        parameter = ' '.join([str(elem) for elem in parameter])
+    logger.info("Search of %s: %s", user.first_name, parameter)
     rede = ChannelsNetwork()
-    films = rede.search(str(parameter))
+    films = rede.search(parameter)
     logger.info("Films of %s: %s", user.first_name, films)
     list_filmes = []
     for index, film in enumerate(films):
@@ -220,7 +222,7 @@ def main():
     )
 
     conv_search = ConversationHandler(
-        entry_points=[CommandHandler('search', search)],
+        entry_points=[CommandHandler('search', search, pass_args=True)],
 
         states={
             SELECT: [MessageHandler(Filters.text, select_film),

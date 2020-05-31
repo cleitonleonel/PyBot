@@ -9,7 +9,7 @@ idna==2.7
 pycparser==2.20
 python-dotenv==0.9.1
 python-telegram-bot==12.7
-redecanais==0.21
+redecanais==0.22
 requests==2.23.0
 six==1.15.0
 soupsieve==2.0.1

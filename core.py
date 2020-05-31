@@ -42,7 +42,15 @@ def search(update, context):
     if isinstance(parameter, list):
         parameter = ' '.join([str(elem) for elem in parameter])
     logger.info("Search of %s: %s", user.first_name, parameter)
-    rede = ChannelsNetwork(debug=True).set_proxies()
+    rede = ChannelsNetwork(debug=True)
+    rede.headers()['user_agent'] = {'User-Agent': 'Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:72.0) Gecko/20100101 Firefox/72.0',}
+
+    # data = {'http': '131.0.246.154:39222'}
+    # rede.set_proxies(**data)
+
+    rede.set_proxies()
+    print(rede.headers())
+    print(rede.proxies)
     films = rede.search(parameter, description=False)
     logger.info("Films of %s: %s", user.first_name, films)
     list_filmes = []
@@ -63,7 +71,7 @@ def search(update, context):
 
 
 def select_film(update, context):
-    rede = ChannelsNetwork(debug=True).set_proxies()
+    rede = ChannelsNetwork(debug=True)
     user = update.message.from_user
     selected = update.message.text.replace('/', '')
     if selected.isalpha():
@@ -238,12 +246,12 @@ def main():
     dispatcher.add_handler(MessageHandler(Filters.command, unknown))
 
     # Start the Bot
-    #updater.start_polling()
+    updater.start_polling()
 
-    updater.start_webhook(listen="0.0.0.0",
-                          port=int(PORT),
-                          url_path=TOKEN)
-    updater.bot.setWebhook('https://robot-dev.herokuapp.com/' + TOKEN)
+    #updater.start_webhook(listen="0.0.0.0",
+                          #port=int(PORT),
+                          #url_path=TOKEN)
+    #updater.bot.setWebhook('https://robot-dev.herokuapp.com/' + TOKEN)
 
     # Block until the user presses Ctrl-C or the process receives SIGINT,
     # SIGTERM or SIGABRT. This should be used most of the time, since

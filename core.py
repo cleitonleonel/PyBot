@@ -50,8 +50,11 @@ def search(update, context):
 
     rede.set_proxies()
     print(rede.headers())
-    print(rede.proxies)
+
     films = rede.search(parameter, description=False)
+
+    print(rede.proxies)
+
     logger.info("Films of %s: %s", user.first_name, films)
     list_filmes = []
     for index, film in enumerate(films):
@@ -246,7 +249,7 @@ def main():
     dispatcher.add_handler(MessageHandler(Filters.command, unknown))
 
     # Start the Bot
-    #updater.start_polling()
+    # updater.start_polling()
 
     updater.start_webhook(listen="0.0.0.0",
                           port=int(PORT),

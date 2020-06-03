@@ -1,9 +1,8 @@
 from telegram.ext import CommandHandler, Filters, MessageHandler, Updater, ConversationHandler
 from telegram import ReplyKeyboardMarkup, ReplyKeyboardRemove
 from conf.settings import BASE_API_URL, TELEGRAM_TOKEN
-from redecanais.redecanais import ChannelsNetwork
 
-
+import requests
 import logging
 import os
 
@@ -41,19 +40,26 @@ def search(update, context):
     logger.info("Search of %s: %s", user.first_name, parameter)
     if isinstance(parameter, list):
         parameter = ' '.join([str(elem) for elem in parameter])
+    if ' ' in parameter:
+        list_parameter = []
+        for item in parameter.split(' '):
+            list_parameter.append(item.capitalize())
+        parameter = ' '.join(list_parameter)
+    else:
+        parameter = parameter.capitalize()
+
+    data = requests.get('https://gist.githubusercontent.com/cleitonleonel/3d894a0b2d0643d7918b095fccdae047/raw/4437e426015c460ba63a9fdc334e8228c2c9fdb6/filmes.json').json()
+
+    films = []
+    for i, item in enumerate(data):
+        try:
+            if parameter in str(item['title']):
+                films.append(item)
+        except:
+            pass
+    print(films)
+
     logger.info("Search of %s: %s", user.first_name, parameter)
-    rede = ChannelsNetwork(debug=True)
-    rede.headers()['user_agent'] = {'User-Agent': 'Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:72.0) Gecko/20100101 Firefox/72.0',}
-
-    # data = {'http': '131.0.246.154:39222'}
-    # rede.set_proxies(**data)
-
-    rede.set_proxies()
-    print(rede.headers())
-
-    films = rede.search(parameter, description=False)
-
-    print(rede.proxies)
 
     logger.info("Films of %s: %s", user.first_name, films)
     list_filmes = []
@@ -74,7 +80,6 @@ def search(update, context):
 
 
 def select_film(update, context):
-    rede = ChannelsNetwork(debug=True)
     user = update.message.from_user
     selected = update.message.text.replace('/', '')
     if selected.isalpha():
@@ -91,15 +96,15 @@ def select_film(update, context):
     title = films[selected]['title']
     img = films[selected]['img']
     description = films[selected]['description']
-    player_url = rede.get_player(filme)
+    player_url = films[selected]['player']
     try:
-        video_url = rede.get_stream(url={'uri': player_url['embed']}, referer='https://dietafitness.fun/')
+        video_url = films[selected]['stream']
     except:
         response_message = 'Desculpe! Não encontrei links para esse filme.'
         context.bot.send_message(chat_id=update.message.chat_id, text=response_message)
         return ConversationHandler.END
     else:
-        response_message = video_url.split('?')[0]
+        response_message = video_url
         logger.info(response_message)
         context.bot.send_message(chat_id=update.message.chat_id, text=response_message)
 

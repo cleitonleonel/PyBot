@@ -98,22 +98,25 @@ def select_film(update, context):
         text_html = f"<a href='{response_message}'>{title}</a>"
         if img:
             filename = img.split("/")[-1]
-            r = requests.get(img, timeout=0.5)
+            r = requests.get(img)
+
+            print(r.status_code)
 
             if r.status_code == 200:
                 with open(filename, 'wb') as f:
                     f.write(r.content)
-                img = filename
 
-            with open(img, 'rb') as film_picture:
-                caption = text_html
-                context.bot.send_photo(
-                    chat_id=update.message.chat_id,
-                    photo=film_picture,
-                    caption=caption,
-                    parse_mode='HTML'
-                )
-            os.remove(filename)
+                with open(filename, 'rb') as film_picture:
+                    caption = text_html
+                    context.bot.send_photo(
+                        chat_id=update.message.chat_id,
+                        photo=film_picture,
+                        caption=caption,
+                        parse_mode='HTML'
+                    )
+                os.remove(filename)
+            else:
+                context.bot.send_message(chat_id=update.message.chat_id, text=text_html, parse_mode='HTML')
         else:
             context.bot.send_message(chat_id=update.message.chat_id, text=text_html, parse_mode='HTML')
 

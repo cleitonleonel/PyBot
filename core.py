@@ -36,7 +36,7 @@ def search(update, context):
     else:
         parameter = parameter.capitalize()
 
-    data = requests.get('https://gist.githubusercontent.com/cleitonleonel/3d894a0b2d0643d7918b095fccdae047/raw/4437e426015c460ba63a9fdc334e8228c2c9fdb6/filmes.json').json()
+    data = requests.get('https://gist.githubusercontent.com/cleitonleonel/3d894a0b2d0643d7918b095fccdae047/raw/27a9016a8bccbef980f23bac58013cf979b79de7/filmes.json').json()
 
     films = []
     for i, item in enumerate(data):

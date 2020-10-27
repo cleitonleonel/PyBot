@@ -2,7 +2,7 @@ beautifulsoup4==4.9.1
 certifi==2018.8.13
 cffi==1.14.0
 chardet==3.0.4
-cryptography==2.9.2
+cryptography==3.2
 decorator==4.4.2
 future==0.16.0
 idna==2.7
